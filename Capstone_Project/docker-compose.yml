@@ -1,0 +1,49 @@
+version: '3.9'
+
+services:
+  auth_service:
+    build: ./auth_service
+    ports:
+      - "5003:5003"
+    networks:
+      - hotel-net
+
+  room_service:
+    build: ./room_service
+    ports:
+      - "5000:5000"
+    networks:
+      - hotel-net
+
+  reservation_service:
+    build: ./reservation_service
+    ports:
+      - "5001:5001"
+    depends_on:
+      - room_service
+    networks:
+      - hotel-net
+
+  gateway_service:
+    build: ./gateway
+    ports:
+      - "5002:5002"
+    depends_on:
+      - auth_service
+      - room_service
+      - reservation_service
+    networks:
+      - hotel-net
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - gateway_service
+    networks:
+      - hotel-net
+
+networks:
+  hotel-net:
+    driver: bridge
